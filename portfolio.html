@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JIAHUAN STUDIO | 作品集</title>
+<style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+        display: flex;
+        flex-direction: column;
+        background: #101a1d;
+        color: #f4f7f4;
+        font-family: Arial, sans-serif;
+    }
+    header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 20px;
+        background: #071216;
+        border-bottom: 1px solid rgba(184, 245, 0, 0.3);
+    }
+    h1 { margin: 0; font-size: 16px; letter-spacing: 1px; }
+    a {
+        padding: 9px 16px;
+        border-radius: 999px;
+        background: #b8f500;
+        color: #071216;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+    main {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    .pages {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid rgba(184, 245, 0, 0.12);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+    }
+</style>
+</head>
+<body>
+<header>
+    <h1>JIAHUAN STUDIO · 作品集</h1>
+    <a href="/assets/JIAHUAN_STUDIO_Portfolio.pdf" download="JIAHUAN_STUDIO_Portfolio.pdf">下载原始 PDF</a>
+</header>
+<main>
+    <div class="pages" id="pages"></div>
+</main>
+<script>
+    const pages = document.getElementById("pages");
+    for (let page = 1; page <= 21; page += 1) {
+        const image = document.createElement("img");
+        image.src = `/assets/resume-preview/page-${String(page).padStart(2, "0")}.png`;
+        image.alt = `作品集第 ${page} 页`;
+        image.loading = page <= 2 ? "eager" : "lazy";
+        pages.appendChild(image);
+    }
+</script>
+</body>
+</html>

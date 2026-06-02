@@ -1,0 +1,1602 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JIAHUAN STUDIO | Jiahuan</title>
+<script crossorigin="" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet">
+<script>
+        tailwind.config = {
+            darkMode: 'class', // 启用基于 class 的暗黑模式
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        black: '#000000',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shine: {
+                            '0%': { backgroundPosition: '200% center' },
+                            '100%': { backgroundPosition: '-200% center' },
+                        }
+                    },
+                    animation: {
+                        float: 'float 3s ease-in-out infinite',
+                        shine: 'shine 3s linear infinite',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Global Styles & Dotted Background */
+        body, html {
+            margin: 0;
+            padding: 0;
+            cursor: none; /* Hide default cursor to use custom reactive cursor */
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* 浅色模式背景（保持纯净并带有一丝高级噪点质感） */
+        html:not(.dark) body {
+            background-color: #fcfcfc;
+            color: #000000;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+            background-attachment: fixed;
+            background-size: 150px 150px;
+        }
+
+        /* --- 暗黑模式：极简高端科技品牌背景 --- */
+        html.dark {
+            background-color: #080a08; /* 极简高级深黑底色，透出极微弱的暗墨绿色相 */
+            color: #ffffff;
+        }
+
+        html.dark body {
+            background-color: transparent;
+            background-image: 
+                /* 1. 科技感与秩序感抽象结构线条 (调亮透明度为0.05，缩小网格尺寸让结构更清晰) */
+                linear-gradient(rgba(184, 245, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(184, 245, 0, 0.05) 1px, transparent 1px),
+                /* 2. 右上角边缘的荧光绿柔光晕染 (调亮透明度为0.15，扩大范围至50%) */
+                radial-gradient(circle at 85% 0%, rgba(184, 245, 0, 0.15) 0%, transparent 50%),
+                /* 3. 左下角深邃冷峻的暗绿氛围光 (调亮并向中心延伸) */
+                radial-gradient(circle at 0% 100%, rgba(184, 245, 0, 0.1) 0%, transparent 60%),
+                /* 4. 画面中心大面积留白区域的极淡雾感空气光 */
+                radial-gradient(ellipse at 50% 50%, rgba(184, 245, 0, 0.03) 0%, transparent 70%),
+                /* 5. 顶级材质的细腻磨砂轻微颗粒感噪点 (调高噪点强度至0.08) */
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+            
+            background-attachment: fixed; /* 锁定背景，产生滚动视差 */
+            background-position: center center;
+            /* 精确控制每一层的渲染尺寸 */
+            background-size: 
+                120px 120px, /* 网格1 */
+                120px 120px, /* 网格2 */
+                100% 100%,   /* 晕染1 */
+                100% 100%,   /* 晕染2 */
+                100% 100%,   /* 晕染3 */
+                150px 150px; /* 噪点 */
+            background-repeat: repeat, repeat, no-repeat, no-repeat, no-repeat, repeat;
+        }
+
+        /* Hide scrollbar for cleaner look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555555; }
+
+        /* --- Glow Card Hover Effect --- */
+        .glow-effect-card {
+            position: relative;
+        }
+        /* Inner subtle background glow */
+        .glow-effect-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(184, 245, 0, 0.05), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        /* Outer precise border glow */
+        .glow-effect-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1.5px; /* Thicker inner stroke for the border glow */
+            background: radial-gradient(400px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(184, 245, 0, 0.8), transparent 40%);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .glow-effect-card:hover::before,
+        .glow-effect-card:hover::after {
+            opacity: 1;
+        }
+        /* Light mode variations */
+        html:not(.dark) .glow-effect-card::before {
+            background: radial-gradient(600px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(184, 245, 0, 0.15), transparent 40%);
+        }
+
+        /* --- Mobile: Remove all interactions and transitions --- */
+        @media (max-width: 768px) {
+            body, html {
+                cursor: auto !important;
+            }
+            
+            .glow-effect-card::before,
+            .glow-effect-card::after {
+                opacity: 0 !important;
+                display: none !important;
+            }
+            
+            *:hover {
+                transform: none !important;
+                scale: 1 !important;
+                opacity: 1 !important;
+            }
+            
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+            
+            .glow-effect-card {
+                transform: none !important;
+                box-shadow: none !important;
+                border-color: inherit !important;
+            }
+            
+            /* Remove Masonry card hover expand effect */
+            .group-hover\/card\:scale-110,
+            .group-hover\/card\:opacity-100,
+            .group-hover\/card\:translate-y-0 {
+                all: unset;
+            }
+            
+            /* Disable hover pseudo-class styles */
+            *:hover {
+                transform: none !important;
+                scale: 1 !important;
+                opacity: inherit !important;
+                box-shadow: none !important;
+                border-color: inherit !important;
+            }
+            
+            /* Make cards static size */
+            [class*="flex-"] {
+                flex: 1 !important;
+            }
+            
+            /* Remove hover shadow and border effects */
+            [class*="hover:shadow-"],
+            [class*="hover:border-"] {
+                box-shadow: none !important;
+                border-color: inherit !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Data & Translations ---
+        const dictionary = {
+            zh: {
+                nav: { about: "关于我", comic: "精选漫剧", projects: "精选作品", skills: "个人技能", coop: "联系方式", contact: "下载简历" },
+                hero: {
+                    contacts: [
+                        { iconKey: "phone", label: "手机号:", value: "15988997215" },
+                        { iconKey: "wechat", label: "微信号:", value: "15988997215" },
+                        { iconKey: "email", label: "邮箱:", value: "1956663923@qq.com" }
+                    ]
+                },
+                about: {
+                    title: "About",
+                    titleHighlight: "Me",
+                    subtitle: "关于我",
+                    roleTitle: "AI Comic Drama Creator / ",
+                    roleHighlight: "视觉创作者",
+                    paragraphs: [
+                        "拥有 8 年平面设计与视觉创意经验，\n具备成熟的审美判断与商业视觉表达能力。",
+                        "目前专注于 AI 漫画短剧制作，\n可独立完成选题策划、剧本拆解、角色设定、分镜故事板设计、\nAI 视频生成与剪辑包装等全流程。"
+                    ],
+                    status: "Based in China · Available for freelance & collaboration",
+                    stats: [
+                        { value: "8+", label: "年设计经验", icon: <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> },
+                        { value: "Full-Process", label: "AI漫剧制作", icon: <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> }
+                    ],
+                    tags: [
+                        { label: "角色设定", icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> },
+                        { label: "分镜故事板", icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> },
+                        { label: "AI视频生成", icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> },
+                        { label: "剪辑包装", icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="9.8" y1="8.2" x2="20" y2="17" /><line x1="9.8" y1="15.8" x2="20" y2="7" /></svg> },
+                        { label: "视觉审美", icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> }
+                    ]
+                },
+                comicProjects: {
+                    title: "Comic", titleHighlight: "Projects", subtitle: "精选漫剧项目", desc: "影视级视觉渲染与原创剧情剧本，呈现顶级内容叙事。",
+                    items: [
+                        { 
+                            num: "01", mainTitle: "AI海外真人剧", category: "AIGC WORK", year: "2026", 
+                            detailTitle: "《moving on from\nmy bodyguard》", detailSubtitle: "豪门替嫁AI海外短剧",
+                            detailDesc: "一段关于牺牲与错爱的故事，\n她用一纸契约换来离开的资格，却发现父亲与爱人都只偏爱妹妹。",
+                            tags: ["AI漫剧", "豪门替嫁", "虐恋短片", "分镜设计", "Seedance", "剪辑包装"],
+                            role: "剧本改编 / 角色设定 / 分镜设计 / AI视频生成",
+                            leftFooter: "以 AI 视觉呈现海外豪门虐恋的情感拉扯与叙事张力。"
+                        },
+                        { 
+                            num: "02", mainTitle: "AI真人剧", category: "AIGC WORK", year: "2026", 
+                            detailTitle: "《破门》", detailSubtitle: "悬疑重生AI漫剧短片",
+                            detailDesc: "她重生回命运崩塌的那一天，\n这一次，她要亲手破开困住全家的死局。",
+                            tags: ["AI漫剧", "悬疑重生", "逆袭短片", "分镜设计", "Seedance"],
+                            role: "剧本改编 / 角色设定 / 分镜设计 / AI视频生成",
+                            leftFooter: "以 AI 呈现悬疑与重生的双重视觉震撼与叙事张力。"
+                        },
+                        { 
+                            num: "03", mainTitle: "3D漫剧", category: "AIGC WORK", year: "2026", 
+                            detailTitle: "《末日逃亡》", detailSubtitle: "末日生存3D漫剧短片",
+                            detailDesc: "当男性血液成为末日硬通货，\n他必须带着三个女人，逃离一万个女人的疯狂追杀。",
+                            tags: ["AI漫剧", "末日生存", "逃亡短片", "分镜设计", "Seedance"],
+                            role: "剧本改编 / 角色设定 / 分镜设计 / AI视频生成",
+                            leftFooter: "以 AI 呈现末日废土的生存狂飙与极致视觉张力。"
+                        }
+                    ]
+                },
+                skills: {
+                    title: "My Skills",
+                    titleHighlight: "Skills",
+                    subtitle: "个人技能",
+                    desc: "围绕AI漫剧制作，完成从内容拆解、视觉设定、分镜设计到视频生成与剪辑包装的完整流程。",
+                    specialtiesLabel: "擅长类型 (SPECIALTIES)",
+                    workflowLabel: "漫剧生产能力",
+                    specialties: ["AI漫剧", "短剧分镜", "文/图生视频", "剪辑包装"],
+                    steps: [
+                        { step: "STEP1", title: "短剧拆解", icon: "board" },
+                        { step: "STEP2", title: "剧本改编", icon: "pen" },
+                        { step: "STEP3", title: "角色设定", icon: "user" },
+                        { step: "STEP4", title: "场景设定", icon: "camera" },
+                        { step: "STEP5", title: "分镜设计", icon: "layout" },
+                        { step: "STEP6", title: "AI图像生成", icon: "spark" },
+                        { step: "STEP7", title: "AI视频生成", icon: "video" },
+                        { step: "STEP8", title: "剪辑包装", icon: "scissors" }
+                    ]
+                },
+                visual: {
+                    label: "CAPABILITIES", title: "漫剧生产能力", subtitle: "建立从分集拆解、角色资产、场景模板、分镜系统到批量视频生成与成片质检的完整生产思路。",
+                    items: [
+                        { num: "01", title: "剧本拆解", desc: "从故事梗概中提炼人物关系、核心冲突与视觉特征" },
+                        { num: "02", title: "角色设定", desc: "完成主角、反派、配角的外形、服装三视图" },
+                        { num: "03", title: "场景开发", desc: "建立短剧世界观、主场景、光影氛围与美术基调" },
+                        { num: "04", title: "分镜故事板", desc: "输出镜头景别、人物站位、机位运动与节奏设计" },
+                        { num: "05", title: "AI视频生成", desc: "基于首帧、运镜提示词和连续性控制生成视频片段" },
+                        { num: "06", title: "剪辑包装", desc: "完成节奏卡点、字幕包装、封面与平台发布素材" }
+                    ]
+                },
+                projects: {
+                    label: "MORE WORKS", title: "其他作品展示", subtitle: "角色设定、场景美术、关键帧、分镜与动态预览等 AI 漫想相关视觉实验。",
+                    items: [
+                        { tag: "角色/场景设定", title: "AI 舞蹈片段", aspectClass: "aspect-[4/3]", gradient: "from-indigo-900 to-black", posterSrc: "assets/gif431_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif431.gif" },
+                        { tag: "AI 短片", title: "部分角色设定", aspectClass: "aspect-[3/4]", gradient: "from-stone-800 to-black", posterSrc: "assets/gif34_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif34.gif" },
+                        { tag: "商业广告", title: "AI 情绪短片", aspectClass: "aspect-[16/9]", gradient: "from-amber-900 to-black", posterSrc: "assets/gif1691_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif1691.gif" },
+                        { tag: "视觉实验", title: "无人机产品视频", aspectClass: "aspect-[3/2]", gradient: "from-teal-900 to-black", posterSrc: "assets/gif321_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif321.gif" },
+                        { tag: "分镜故事板", title: "动作戏分镜", aspectClass: "aspect-[5/4]", gradient: "from-rose-900 to-black", posterSrc: "assets/gif541_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif541.gif" },
+                        
+                        { tag: "商业广告", title: "部分场景设定", aspectClass: "aspect-[21/9]", gradient: "from-blue-900 to-black", posterSrc: "assets/gif219_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif219.gif" },
+                        { tag: "角色/场景设定", title: "3D 国漫特效", aspectClass: "aspect-[4/3]", gradient: "from-orange-900 to-black", posterSrc: "assets/gif432_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif432.gif" },
+                        { tag: "商业广告", title: "短剧封面设计", aspectClass: "aspect-[2/3]", gradient: "from-sky-900 to-black", posterSrc: "assets/gif23_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif23.gif" },
+                        { tag: "视觉实验", title: "AI 音乐+MV", aspectClass: "aspect-[3/2]", gradient: "from-gray-800 to-black", posterSrc: "assets/gif322_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif322.gif" },
+                        { tag: "角色/场景设定", title: "商业合作短片", aspectClass: "aspect-[16/9]", gradient: "from-emerald-900 to-black", posterSrc: "assets/gif1692_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif1692.gif" },
+                        
+                        { tag: "分镜故事板", title: "3D 漫剧片段", aspectClass: "aspect-[5/4]", gradient: "from-fuchsia-900 to-black", posterSrc: "assets/gif542_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif542.gif" },
+                        { tag: "商业广告", title: "3D 国漫特效", aspectClass: "aspect-[4/3]", gradient: "from-pink-900 to-black", posterSrc: "assets/gif433_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif433.gif" },
+                        { tag: "AI 短片", title: "Bibilaab 短片", aspectClass: "aspect-[3/2]", gradient: "from-purple-900 to-black", posterSrc: "assets/gif323_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif323.gif" },
+                        { tag: "视觉实验", title: "3D 末日漫剧", aspectClass: "aspect-[16/10]", gradient: "from-yellow-900 to-black", posterSrc: "assets/gif1610_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif1610.gif" },
+                        { tag: "角色/场景设定", title: "二创搞笑视频", aspectClass: "aspect-[16/9]", gradient: "from-red-900 to-black", posterSrc: "assets/gif1693_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif1693.gif" },
+                        
+                        { tag: "分镜故事板", title: "美式风格舞蹈", aspectClass: "aspect-[4/3]", gradient: "from-cyan-900 to-black", posterSrc: "assets/gif161_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif161.gif" },
+                        { tag: "商业广告", title: "AI 古装剧片段", aspectClass: "aspect-[5/4]", gradient: "from-slate-800 to-black", posterSrc: "assets/gif543_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif543.gif" },
+                        { tag: "AI 短片", title: "AI 文旅宣传片", aspectClass: "aspect-[3/2]", gradient: "from-zinc-800 to-black", posterSrc: "assets/gif324_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif324.gif" },
+                        { tag: "视觉实验", title: "二创搞笑视频", aspectClass: "aspect-[16/9]", gradient: "from-neutral-800 to-black", posterSrc: "assets/gif1694_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif1694.gif" },
+                        { tag: "角色/场景设定", title: "武侠打斗片段", aspectClass: "aspect-[16/10]", gradient: "from-stone-900 to-black", posterSrc: "assets/gif16101_1.jpg", gifSrc: "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/gif16101.gif" }
+                    ]
+                },
+                footer: {
+                    title: "THANK YOU",
+                    titleHighlight: "",
+                    subtitle: "感谢浏览。无论是漫剧定制、全职机会，还是单纯的视效设计交流，我都非常期待与您取得联系。",
+                    copyHint: "点击对话框复制联系方式",
+                    contacts: [
+                        { icon: "phone", title: "手机联系", value: "15988997215" },
+                        { icon: "wechat", title: "微信沟通", value: "15988997215" },
+                        { icon: "email", title: "发送邮件", value: "1956663923@qq.com" }
+                    ],
+                    copyright: "© 2026 Jiahuan. All rights reserved. WITH LOVE & PASSION."
+                }
+            }
+        };
+
+        // --- Components ---
+
+        // 鼠标悬停发光卡片容器组件
+        const GlowCard = ({ children, className = "", onMouseEnter, onMouseLeave }) => {
+            const cardRef = useRef(null);
+
+            const handleMouseMove = (e) => {
+                if (!cardRef.current) return;
+                const rect = cardRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                cardRef.current.style.setProperty('--mouse-x', `${x}px`);
+                cardRef.current.style.setProperty('--mouse-y', `${y}px`);
+            };
+
+            return (
+                <div
+                    ref={cardRef}
+                    onMouseMove={handleMouseMove}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                    className={`glow-effect-card border border-gray-200 dark:border-gray-800/80 bg-white dark:bg-[#080808] transition-all duration-500 overflow-hidden ${className}`}
+                >
+                    {children}
+                </div>
+            );
+        };
+
+
+        const Navbar = ({ t, isDarkMode, setIsDarkMode, setCursorType }) => (
+            <nav className="fixed top-0 w-full z-50 bg-black text-white py-6 px-8 md:px-16 flex justify-between items-center border-b border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-all duration-300">
+                <div 
+                    className="text-xl font-bold tracking-tight cursor-pointer flex items-center gap-1"
+                    onMouseEnter={() => setCursorType('hover')}
+                    onMouseLeave={() => setCursorType('default')}
+                >
+                    JIAHUAN STUDIO <span className="text-[#B8F500]">*</span>
+                </div>
+                <div className="hidden lg:flex gap-8 text-sm font-medium">
+                    {['about', 'comic', 'projects', 'skills'].map(key => (
+                        <a 
+                            key={key} 
+                            href={key === 'about' ? '#hero' : `#${key}`} 
+                            className="hover:opacity-70 transition-opacity"
+                            onMouseEnter={() => setCursorType('hover')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            {t.nav[key]}
+                        </a>
+                    ))}
+                </div>
+                <div className="flex gap-4 items-center">
+                    <button 
+                        onClick={() => setIsDarkMode(!isDarkMode)}
+                        className="flex items-center justify-center w-8 h-8 rounded-full border border-white/30 hover:bg-white hover:text-black transition-colors"
+                        onMouseEnter={() => setCursorType('hover')}
+                        onMouseLeave={() => setCursorType('default')}
+                        title={isDarkMode ? "切换到浅色模式" : "切换到深色模式"}
+                    >
+                        {isDarkMode ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                        ) : (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                        )}
+                    </button>
+                    <a
+                        href="/portfolio.html?v=2"
+                        className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold hover:scale-105 transition-transform"
+                        onMouseEnter={() => setCursorType('hover')}
+                        onMouseLeave={() => setCursorType('default')}
+                    >
+                        {t.nav.contact}
+                    </a>
+                </div>
+            </nav>
+        );
+
+        const Hero = ({ t, mousePos, cursorType, setCursorType, isDarkMode }) => {
+            const containerRef = useRef(null);
+            const [relativePos, setRelativePos] = useState({ x: 0, y: 0 });
+            const [clipRadius, setClipRadius] = useState(0);
+            const [tilt, setTilt] = useState({ x: 0, y: 0 });
+            const [isMouseInHero, setIsMouseInHero] = useState(false);
+
+            const icons = {
+                phone: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+                wechat: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>,
+                email: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            };
+
+            useEffect(() => {
+                if (!containerRef.current) return;
+                const rect = containerRef.current.getBoundingClientRect();
+                
+                setRelativePos({
+                    x: mousePos.x - rect.left,
+                    y: mousePos.y - rect.top
+                });
+
+                if (isMouseInHero) {
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const deltaX = mousePos.x - centerX;
+                    const deltaY = mousePos.y - centerY;
+
+                    const normX = Math.max(-1, Math.min(1, deltaX / (window.innerWidth / 2)));
+                    const normY = Math.max(-1, Math.min(1, deltaY / (window.innerHeight / 2)));
+
+                    setTilt({
+                        x: -normY * 18, 
+                        y: normX * 18   
+                    });
+                } else {
+                    setTilt({ x: 0, y: 0 }); 
+                }
+            }, [mousePos, isMouseInHero]);
+
+            useEffect(() => {
+                let animationFrameId;
+                const targetRadius = cursorType === 'lens' ? 120 : 0;
+                
+                const updateRadius = () => {
+                    setClipRadius(prev => {
+                        const diff = targetRadius - prev;
+                        if (Math.abs(diff) < 0.1) return targetRadius;
+                        return prev + diff * 0.15;
+                    });
+                    if (clipRadius !== targetRadius) {
+                        animationFrameId = requestAnimationFrame(updateRadius);
+                    }
+                };
+
+                updateRadius();
+                return () => cancelAnimationFrame(animationFrameId);
+            }, [cursorType]);
+
+            const englishMaskStyle = cursorType === 'lens' ? {
+                maskImage: `radial-gradient(circle ${clipRadius}px at ${relativePos.x}px ${relativePos.y}px, transparent ${clipRadius - 1}px, #000 ${clipRadius}px)`,
+                WebkitMaskImage: `radial-gradient(circle ${clipRadius}px at ${relativePos.x}px ${relativePos.y}px, transparent ${clipRadius - 1}px, #000 ${clipRadius}px)`,
+                maskRepeat: 'no-repeat',
+                WebkitMaskRepeat: 'no-repeat'
+            } : {};
+
+            return (
+                <section 
+                    id="hero" 
+                    className="min-h-screen flex flex-col items-center justify-start text-center px-4 relative overflow-hidden pt-32 md:pt-40 pb-12 md:pb-16"
+                    onMouseEnter={() => setIsMouseInHero(true)}
+                    onMouseLeave={() => {
+                        setIsMouseInHero(false);
+                        setCursorType('default');
+                    }}
+                >
+                    
+                    {/* Top block: Title + Contacts */}
+                    <div className="flex flex-col items-center justify-center flex-grow w-full mt-8 md:mt-12 mb-16 md:mb-32">
+                        {/* Hover Staggered 3D Tilt Title Container */}
+                        <div 
+                            ref={containerRef}
+                            className="relative w-full max-w-5xl h-[160px] flex items-center justify-center select-none transform-style-3d mb-12"
+                            style={{
+                                transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                                transition: isMouseInHero ? 'transform 0.15s cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                transformStyle: 'preserve-3d'
+                            }}
+                            onMouseEnter={() => setCursorType('lens')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            {/* Upper layer (English text) */}
+                            <div 
+                                className="absolute text-5xl md:text-7xl font-extrabold tracking-tighter text-black/95 dark:text-white/95 text-center pointer-events-none w-full transition-colors duration-300"
+                                style={{
+                                    ...englishMaskStyle,
+                                    transform: 'translateZ(30px)' 
+                                }}
+                            >
+                                HELLO, I'M <span className="italic font-light text-gray-500 dark:text-gray-400">Jiahuan</span>
+                            </div>
+
+                            {/* Lower layer (Chinese translation) */}
+                            <div 
+                                className="absolute text-4xl md:text-7xl font-extrabold tracking-tighter text-[#B8F500] text-center pointer-events-none w-full"
+                                style={{
+                                    clipPath: `circle(${clipRadius}px at ${relativePos.x}px ${relativePos.y}px)`,
+                                    WebkitClipPath: `circle(${clipRadius}px at ${relativePos.x}px ${relativePos.y}px)`,
+                                    transform: 'translateZ(30px)'
+                                }}
+                            >
+                                你好，我是<span className="italic font-light text-[#d4f84d]">林家欢</span>
+                            </div>
+                        </div>
+
+                        {/* Contacts Row */}
+                        <div className="flex flex-wrap justify-center gap-4 relative z-10">
+                            {t.hero.contacts.map((contact, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className="flex items-center gap-2 border border-gray-200 dark:border-gray-800 rounded-full px-6 py-2 text-sm text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+                                    onMouseEnter={() => setCursorType('hover')}
+                                    onMouseLeave={() => setCursorType('default')}
+                                >
+                                    <span className="text-[#B8F500]">{icons[contact.iconKey]}</span>
+                                    <span>{contact.label}</span>
+                                    <span className="font-mono">{contact.value}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Bottom block: About text Dashboard */}
+                    <div className="flex flex-col items-center w-full max-w-5xl z-10 relative px-4 md:px-0">
+                        <h2 
+                            className="text-4xl md:text-5xl font-bold mb-3 text-black dark:text-white transition-colors"
+                            onMouseEnter={() => setCursorType('hover')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            {t.about.title} <span className="text-[#B8F500]">{t.about.titleHighlight}</span>
+                        </h2>
+                        <span className="text-xs text-gray-500 mb-12 md:mb-16 tracking-widest">{t.about.subtitle}</span>
+                        
+                        {/* Dashboard UI */}
+                        <div className="w-full flex flex-col gap-6 md:gap-8">
+                            {/* Top Row: Left Content + Right Stats */}
+                            <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
+                                
+                                {/* Left Main Card with Glow Effect */}
+                                <GlowCard 
+                                    className="flex-[2] rounded-[2rem] p-8 md:p-12 shadow-lg dark:shadow-[0_0_30px_rgba(184,245,0,0.03)] group/aboutbox"
+                                    onMouseEnter={() => setCursorType('hover')}
+                                    onMouseLeave={() => setCursorType('default')}
+                                >
+                                    {/* Subtitle Green Glow Blob (Behind Content) */}
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-[#B8F500]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-0 group-hover/aboutbox:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>
+
+                                    <div className="flex items-center gap-4 mb-8 md:mb-10 relative z-10">
+                                        <div className="w-12 h-12 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center">
+                                            <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                        </div>
+                                        <h3 className="text-lg md:text-xl font-bold text-black dark:text-white tracking-wide">
+                                            {t.about.roleTitle} <span className="text-[#B8F500]">{t.about.roleHighlight}</span>
+                                        </h3>
+                                    </div>
+
+                                    <div className="flex flex-col relative z-10">
+                                        {t.about.paragraphs.map((para, idx) => (
+                                            <React.Fragment key={idx}>
+                                                <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed text-left whitespace-pre-line font-medium">
+                                                    {para}
+                                                </p>
+                                                {idx < t.about.paragraphs.length - 1 && (
+                                                    <hr className="border-t border-dashed border-gray-200 dark:border-gray-800 my-6 md:my-8" />
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-800 flex items-center gap-3 relative z-10">
+                                        <div className="w-2 h-2 rounded-full bg-[#B8F500] shadow-[0_0_8px_#B8F500] animate-pulse"></div>
+                                        <span className="text-xs text-gray-500 font-medium tracking-wide">{t.about.status}</span>
+                                    </div>
+                                </GlowCard>
+
+                                {/* Right Stats Column */}
+                                <div className="flex-[1] grid grid-cols-2 lg:flex lg:flex-col gap-3 md:gap-8">
+                                    {t.about.stats.map((stat, idx) => (
+                                        <GlowCard 
+                                            key={idx} 
+                                            className="min-h-[108px] lg:min-h-0 flex-1 rounded-[1.25rem] md:rounded-[2rem] p-4 md:p-8 flex flex-col justify-center shadow-lg group/stat" 
+                                            onMouseEnter={() => setCursorType('hover')} 
+                                            onMouseLeave={() => setCursorType('default')}
+                                        >
+                                            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover/stat:animate-[shine_1.5s_ease-in-out] pointer-events-none z-0"></div>
+                                            <div className="relative z-10 text-left">
+                                                <h4 className="text-2xl md:text-4xl font-black text-[#B8F500] mb-2 drop-shadow-sm">{stat.value}</h4>
+                                                <p className="text-gray-500 text-xs md:text-sm font-medium tracking-wide">{stat.label}</p>
+                                            </div>
+                                            <div className="absolute right-[-5%] top-1/2 -translate-y-1/2 opacity-[0.03] dark:opacity-[0.05] text-black dark:text-white pointer-events-none transform group-hover/stat:scale-110 transition-transform duration-700 ease-out z-0">
+                                                {stat.icon}
+                                            </div>
+                                        </GlowCard>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Bottom Row: Tags with Glow Effect */}
+                            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+                                {t.about.tags.map((tag, idx) => (
+                                    <GlowCard 
+                                        key={idx} 
+                                        className="rounded-2xl p-4 flex items-center justify-center gap-3 shadow-sm dark:shadow-none cursor-pointer group/tag" 
+                                        onMouseEnter={() => setCursorType('hover')} 
+                                        onMouseLeave={() => setCursorType('default')}
+                                    >
+                                        <div className="relative z-10 flex items-center justify-center gap-3">
+                                            <div className="text-[#B8F500] opacity-80 group-hover/tag:opacity-100 transition-opacity group-hover/tag:scale-110 transform duration-300">{tag.icon}</div>
+                                            <span className="text-gray-700 dark:text-gray-200 text-xs md:text-sm font-bold tracking-wide whitespace-nowrap">{tag.label}</span>
+                                        </div>
+                                    </GlowCard>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        const AnimatedCardStack = ({ setCursorType }) => {
+            const tags = ["全能操盘", "爆款洞察", "审美出众", "高效出片"];
+            
+            // 通用二维码占位图组件 - 接收外部图片链接
+            const QRCodeBox = ({ imgSrc }) => (
+                <div className="w-full h-[70px] md:flex-1 md:min-h-0 md:h-auto my-2 md:my-3 flex items-center justify-center">
+                    <div className="h-full aspect-square bg-gray-100 dark:bg-[#222222] rounded-lg md:rounded-2xl flex items-center justify-center border border-gray-200 dark:border-gray-800 transition-colors relative overflow-hidden">
+                        <img src={imgSrc} alt="QR Code" className="w-full h-full object-cover" />
+                    </div>
+                </div>
+            );
+
+            // ================= 提取子卡片内容以供 PC 和 Mobile 共用 =================
+
+            const MainCardContent = () => (
+                <div className="w-full h-full bg-white dark:bg-[#1a1a1a] rounded-xl md:rounded-3xl border border-gray-200 dark:border-gray-700 p-3 md:p-8 flex flex-col items-start justify-start shadow-xl dark:shadow-2xl transition-colors">
+                    <div className="flex items-center gap-2 md:gap-4 mb-2 md:mb-4">
+                        <div className="w-8 h-8 md:w-12 md:h-12 shrink-0 rounded-lg md:rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center transition-colors">
+                            <svg className="text-[#B8F500] w-4 h-4 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <h3 className="text-black dark:text-white text-[12px] md:text-[20px] font-bold text-left leading-tight tracking-wide transition-colors">AI全流程漫剧<br/>制作师</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-1 md:gap-2 mt-auto">
+                        {tags.map((tag, idx) => (
+                            <span key={idx} className="px-1 md:px-2 py-0.5 md:py-1 text-[8px] md:text-[11px] font-medium border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 rounded text-left whitespace-nowrap transition-colors">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            );
+
+            const DouyinCardContent = () => (
+                <div className="w-full h-full bg-white dark:bg-[#1a1a1a] rounded-xl md:rounded-3xl border border-gray-200 dark:border-gray-800 p-2 md:p-6 flex flex-col shadow-xl transition-colors">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-1">
+                        <div className="flex items-center gap-1 md:gap-3">
+                            <div className="w-7 h-7 md:w-10 md:h-10 shrink-0 rounded-lg md:rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center transition-colors">
+                                <svg className="text-[#B8F500] w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+                                </svg>
+                            </div>
+                            <h3 className="text-black dark:text-white text-xs md:text-xl font-bold tracking-wide transition-colors">抖音</h3>
+                        </div>
+                        <span className="text-[#B8F500] font-bold text-[9px] md:text-sm tracking-wide">东魁杨梅哥</span>
+                    </div>
+                    <QRCodeBox imgSrc="assets/douyin-jiahuan.png" />
+                    <span className="w-full text-center text-[10px] font-bold tracking-widest text-gray-400 dark:text-gray-600 transition-colors">- 抖音扫码 -</span>
+                </div>
+            );
+
+            const ShipinhaoCardContent = () => (
+                <div className="w-full h-full bg-white dark:bg-[#1a1a1a] rounded-xl md:rounded-3xl border border-gray-200 dark:border-gray-800 p-2 md:p-6 flex flex-col shadow-xl transition-colors">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-1">
+                        <div className="flex items-center gap-1 md:gap-3">
+                            <div className="w-7 h-7 md:w-10 md:h-10 shrink-0 rounded-lg md:rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center transition-colors">
+                                <svg className="text-[#B8F500] w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" /><polygon points="10 8 15 10 10 12 10 8" />
+                                </svg>
+                            </div>
+                            <h3 className="text-black dark:text-white text-xs md:text-xl font-bold tracking-wide transition-colors">视频号</h3>
+                        </div>
+                        <span className="text-[#B8F500] font-bold text-[9px] md:text-sm tracking-wide">北瓜村村长</span>
+                    </div>
+                    <QRCodeBox imgSrc="assets/shipinhao-jiahuan.png" />
+                    <span className="w-full text-center text-[10px] font-bold tracking-widest text-gray-400 dark:text-gray-600 transition-colors">- 微信扫码 -</span>
+                </div>
+            );
+
+            return (
+                <div className="w-full">
+                    {/* ================= PC 端：扇形展开交互与绝对定位 (md:block) ================= */}
+                    <div 
+                        className="hidden md:block relative w-[260px] h-[260px] group mx-auto animate-float hover:[animation-play-state:paused] z-10"
+                        onMouseEnter={() => setCursorType('hover')}
+                        onMouseLeave={() => setCursorType('default')}
+                    >
+                        {/* 隐形热区扩展层 */}
+                        <div className="absolute inset-y-0 inset-x-0 group-hover:-inset-x-96 z-0" />
+
+                        {/* 第3张卡片 (视频号) */}
+                        <div className="absolute inset-0 z-20 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] origin-bottom transform translate-x-[80px] translate-y-[12px] rotate-[10deg] opacity-80 hover:scale-105 hover:z-50 group-hover:opacity-100 group-hover:translate-x-[270px] group-hover:translate-y-0 group-hover:rotate-0">
+                            <ShipinhaoCardContent />
+                        </div>
+
+                        {/* 第2张卡片 (抖音) */}
+                        <div className="absolute inset-0 z-30 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] origin-bottom transform -translate-x-[30px] translate-y-[8px] -rotate-[8deg] opacity-90 hover:scale-105 hover:z-50 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:rotate-0">
+                            <DouyinCardContent />
+                        </div>
+
+                        {/* 第1张主卡片 */}
+                        <div className="absolute inset-0 z-40 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] origin-bottom transform -translate-x-[140px] translate-y-[30px] -rotate-[18deg] opacity-100 hover:scale-105 hover:z-50 group-hover:-translate-x-[270px] group-hover:translate-y-0 group-hover:rotate-0">
+                            <MainCardContent />
+                        </div>
+
+                        {/* 悬停光影文字 */}
+                        <div className="absolute -bottom-28 left-1/2 -translate-x-1/2 w-max opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] translate-y-4 group-hover:translate-y-0 pointer-events-none z-0">
+                            <h3 className="text-2xl font-bold tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-gray-900 to-gray-300 dark:from-gray-800 dark:via-white dark:to-gray-800 bg-[length:200%_auto] animate-shine">
+                                用 AI 重新构建影像叙事的生产方式
+                            </h3>
+                        </div>
+                    </div>
+
+                    {/* ================= 移动端：无交互的三列平铺展示 (md:hidden) ================= */}
+                    <div className="grid md:hidden grid-cols-3 gap-2 items-stretch w-full mx-auto z-10">
+                        {/* 静态卡片横向排列 */}
+                        <div className="min-w-0 h-[170px]"><MainCardContent /></div>
+                        <div className="min-w-0 h-[170px]"><DouyinCardContent /></div>
+                        <div className="min-w-0 h-[170px]"><ShipinhaoCardContent /></div>
+                        
+                        {/* 静态常驻光影文字 */}
+                        <div className="col-span-3 mt-4 text-center px-2">
+                            <h3 className="text-lg font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-gray-300 via-gray-900 to-gray-300 dark:from-gray-800 dark:via-white dark:to-gray-800 bg-[length:200%_auto] animate-shine leading-relaxed">
+                                用 AI 重新构建<br/>影像叙事的生产方式
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const About = ({ setCursorType }) => {
+            return (
+                <section id="about" className="py-20 md:py-32 flex flex-col items-center justify-center px-4 w-full overflow-hidden">
+                    {/* 响应式的动态/静态混合卡片组 */}
+                    <AnimatedCardStack setCursorType={setCursorType} />
+                </section>
+            );
+        };
+
+        const ComicProjects = ({ t, setCursorType }) => {
+            const [activeIndex, setActiveIndex] = useState(0);
+            const [playingIndex, setPlayingIndex] = useState(null);
+            const [volume, setVolume] = useState(0.5);
+            const [isMuted, setIsMuted] = useState(false);
+            const videoRefs = useRef([]);
+
+            const videoUrls = [
+                "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/001.mp4",
+                "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/002.mp4",
+                "https://pub-ab1141b1423a40c1ac1a93517b1d3c30.r2.dev/003.mp4"
+            ];
+
+            const posterUrls = [
+                "assets/00001.jpg",
+                "assets/00002.jpg",
+                "assets/00003.jpg"
+            ];
+
+            const togglePlay = (idx, e) => {
+                if (e && e.target.closest('.video-control')) return;
+                const video = videoRefs.current[idx];
+                if (!video) return;
+
+                if (playingIndex === idx) {
+                    video.pause();
+                    setPlayingIndex(null);
+                } else {
+                    videoRefs.current.forEach((v, i) => {
+                        if (i !== idx && v) {
+                            v.pause();
+                        }
+                    });
+                    video.play();
+                    setPlayingIndex(idx);
+                }
+            };
+
+            const toggleFullscreen = (idx, e) => {
+                e.stopPropagation();
+                const video = videoRefs.current[idx];
+                if (!video) return;
+
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    video.requestFullscreen().catch(err => {
+                        console.error('Error attempting to enable fullscreen:', err);
+                    });
+                }
+            };
+
+            const toggleMute = (idx, e) => {
+                e.stopPropagation();
+                const video = videoRefs.current[idx];
+                if (!video) return;
+
+                video.muted = !video.muted;
+                setIsMuted(video.muted);
+            };
+
+            const handleVolumeChange = (e, idx) => {
+                e.stopPropagation();
+                const newVolume = parseFloat(e.target.value);
+                setVolume(newVolume);
+                videoRefs.current[idx].volume = newVolume;
+                videoRefs.current[idx].muted = false;
+                setIsMuted(false);
+            };
+
+            const handleVideoEnded = (idx) => {
+                setPlayingIndex(null);
+            };
+
+            return (
+                <section id="comic" className="py-32 px-4 md:px-16 max-w-6xl mx-auto">
+                    <div className="text-left mb-16">
+                        <h2 
+                            className="text-5xl md:text-6xl font-extrabold text-black dark:text-white transition-colors"
+                            onMouseEnter={() => setCursorType('hover')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            {t.comicProjects.title} <span className="text-[#B8F500]">{t.comicProjects.titleHighlight}</span>
+                        </h2>
+                        <span className="text-sm text-gray-500 mt-2 block tracking-widest">{t.comicProjects.subtitle}</span>
+                        <p className="text-gray-500 dark:text-gray-400 mt-6">{t.comicProjects.desc}</p>
+                    </div>
+
+                    <div className="flex flex-col border-t border-gray-200 dark:border-gray-800">
+                        {t.comicProjects.items.map((item, idx) => {
+                            const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+                            const isActive = isMobile ? true : activeIndex === idx;
+                            const isPlaying = playingIndex === idx;
+                            return (
+                                <div 
+                                    key={idx} 
+                                    className={`border-b border-gray-200 dark:border-gray-800 ${!isMobile ? 'group' : ''}`}
+                                    onMouseEnter={() => !isMobile && setActiveIndex(idx)}
+                                >
+                                    {/* Header Row */}
+                                    <div className={`py-8 flex items-center justify-between ${!isMobile ? 'cursor-pointer' : ''}`}
+                                         onMouseEnter={() => !isMobile && setCursorType('hover')}
+                                         onMouseLeave={() => !isMobile && setCursorType('default')}>
+                                        <div className="flex items-center gap-6 md:gap-12">
+                                            <span className="text-xs font-mono text-gray-400 dark:text-gray-600 w-4">{item.num}</span>
+                                            <h3 className={`text-2xl md:text-4xl font-bold ${!isMobile ? 'transition-colors duration-500' : ''} ${isActive ? 'text-black dark:text-white' : 'text-gray-300 dark:text-gray-700 group-hover:text-gray-500 dark:group-hover:text-gray-400'}`}>
+                                                {item.mainTitle}
+                                            </h3>
+                                        </div>
+                                        <div className="flex items-center gap-8">
+                                            <div className="hidden md:flex gap-8 text-xs font-mono text-gray-400 tracking-wider">
+                                                <span className="uppercase">{item.category}</span>
+                                                <span>{item.year}</span>
+                                            </div>
+                                            {!isMobile && (
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-[#B8F500] text-black rotate-45' : 'bg-gray-50 dark:bg-[#151515] text-gray-400 dark:text-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-500 border border-gray-200 dark:border-gray-800'}`}>
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <line x1="5" y1="19" x2="19" y2="5"></line>
+                                                    <polyline points="9 5 19 5 19 15"></polyline>
+                                                </svg>
+                                            </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Collapsible Content - always expanded on mobile */}
+                                    <div className={`overflow-hidden ${!isMobile ? 'transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]' : ''} ${isActive ? 'max-h-[1200px] md:max-h-[800px] opacity-100 pb-8' : 'max-h-0 opacity-0'}`}>
+                                        <div className="w-full flex flex-col md:flex-row rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#0a0a0a] min-h-[480px]">
+                                            
+                                            {/* Left Column - Video */}
+                                            <div className="w-full md:w-[55%] relative group/img cursor-pointer overflow-hidden min-h-[300px] md:min-h-full bg-gray-200 dark:bg-[#111111]"
+                                                 onClick={(e) => togglePlay(idx, e)}
+                                                 onMouseEnter={() => setCursorType('hover')}
+                                                 onMouseLeave={() => setCursorType('default')}>
+                                                
+                                                {/* Video Element */}
+                                                <video
+                                                    ref={el => videoRefs.current[idx] = el}
+                                                    className="absolute inset-0 w-full h-full object-cover"
+                                                    poster={posterUrls[idx]}
+                                                    playsInline
+                                                    muted
+                                                    crossOrigin="anonymous"
+                                                    onEnded={() => handleVideoEnded(idx)}
+                                                    onError={(e) => console.error('Video load error for index', idx, e)}
+                                                >
+                                                    <source src={videoUrls[idx]} type="video/mp4" />
+                                                </video>
+                                                
+                                                {/* Grain/noise overlay */}
+                                                <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")'}}></div>
+
+                                                {/* Overlay Gradient */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                                                
+                                                {/* Play/Pause Button */}
+                                                <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isPlaying ? 'opacity-0' : 'opacity-100'}`}>
+                                                    <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/30 text-white hover:bg-black/70 transition-colors">
+                                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+
+                                                {/* Pause Button (visible when playing) */}
+                                                <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isPlaying ? 'opacity-100' : 'opacity-0'}`}>
+                                                    <div className="w-20 h-20 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/30 text-white hover:bg-black/70 transition-colors">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                                            <rect x="6" y="4" width="4" height="16"></rect>
+                                                            <rect x="14" y="4" width="4" height="16"></rect>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+
+                                                {/* Bottom Control Bar */}
+                                                <div className={`absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent transition-opacity duration-300 ${isPlaying ? 'opacity-100' : 'opacity-0'}`}>
+                                                    {/* Volume Control */}
+                                                    <div className="flex items-center gap-3 video-control">
+                                                        <button 
+                                                            onClick={(e) => toggleMute(idx, e)}
+                                                            className="w-8 h-8 flex items-center justify-center text-white hover:text-[#B8F500] transition-colors"
+                                                        >
+                                                            {isMuted ? (
+                                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                                                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                                                                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                                                                </svg>
+                                                            ) : volume < 0.5 ? (
+                                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                                                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                                                </svg>
+                                                            ) : (
+                                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                                                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                                                                </svg>
+                                                            )}
+                                                        </button>
+                                                        <input 
+                                                            type="range" 
+                                                            min="0" 
+                                                            max="1" 
+                                                            step="0.1" 
+                                                            value={isMuted ? 0 : volume}
+                                                            onChange={(e) => handleVolumeChange(e, idx)}
+                                                            className="w-20 h-1 bg-white/30 rounded-full appearance-none cursor-pointer video-control"
+                                                            style={{
+                                                                WebkitAppearance: 'none',
+                                                                background: 'linear-gradient(to right, #B8F500 0%, #B8F500 ' + (isMuted ? '0' : volume * 100) + '%, rgba(255,255,255,0.3) ' + (isMuted ? '0' : volume * 100) + '%, rgba(255,255,255,0.3) 100%)'
+                                                            }}
+                                                        />
+                                                    </div>
+
+                                                    {/* Fullscreen Button */}
+                                                    <button 
+                                                        onClick={(e) => toggleFullscreen(idx, e)}
+                                                        className="w-8 h-8 flex items-center justify-center text-white hover:text-[#B8F500] transition-colors video-control"
+                                                    >
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                                                            <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                                                            <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                                                            <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                                 
+                                                {/* Bottom Left Overlay Text */}
+                                                <div className="absolute left-6 md:left-8 bottom-14 md:bottom-14 z-10 max-w-sm">
+                                                    <p className="text-white text-sm font-medium tracking-wide drop-shadow-md">{item.leftFooter}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Right Column - Details */}
+                                            <div className="w-full md:w-[45%] p-8 md:p-12 flex flex-col justify-between">
+                                                <div>
+                                                    <h4 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-2 whitespace-pre-line leading-tight">{item.detailTitle}</h4>
+                                                    <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 font-medium tracking-wide">{item.detailSubtitle}</p>
+
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 whitespace-pre-line leading-relaxed">
+                                                        {item.detailDesc}
+                                                    </p>
+
+                                                    <div className="flex flex-wrap gap-2 mb-8">
+                                                        {item.tags.map((tag, i) => (
+                                                            <span key={i} className="px-4 py-1.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-800">
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <div className="w-full h-px bg-gray-200 dark:bg-gray-800 mb-6"></div>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-8 font-mono">
+                                                        <strong className="text-black dark:text-white font-sans tracking-wide">Role:</strong> {item.role}
+                                                    </p>
+
+                                                    <button 
+                                                        className="w-full md:w-auto px-8 py-4 bg-[#B8F500] text-black rounded-full font-bold text-sm flex items-center justify-center gap-2 hover:bg-white transition-colors"
+                                                        onMouseEnter={() => setCursorType('hover')}
+                                                        onMouseLeave={() => setCursorType('default')}
+                                                    >
+                                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                                                            <polyline points="12 19 5 12 12 5"></polyline>
+                                                        </svg>
+                                                        点击观看
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
+            );
+        };
+
+        const getIcon = (iconName) => {
+            const map = {
+                user: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                ),
+                camera: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M23 7l-4.5 3.5v-3L23 7z" />
+                    </svg>
+                ),
+                pen: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                ),
+                board: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 3v18" /><path d="M3 9h18" /><path d="M3 15h18" />
+                    </svg>
+                ),
+                layout: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                ),
+                spark: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                    </svg>
+                ),
+                video: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                    </svg>
+                ),
+                scissors: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="9.8" y1="8.2" x2="20" y2="17" /><line x1="9.8" y1="15.8" x2="20" y2="7" />
+                    </svg>
+                ),
+                headphones: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+                    </svg>
+                ),
+                check: (
+                    <svg className="text-[#B8F500] w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                )
+            };
+            return map[iconName] || null;
+        };
+
+        const Skills = ({ t, setCursorType }) => {
+            return (
+                <section id="visual" className="py-32 px-4 md:px-16 max-w-7xl mx-auto border-t border-gray-100 dark:border-gray-900 transition-colors">
+                    <div className="text-center mb-16">
+                        <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">{t.visual.label}</span>
+                        <h2 
+                            className="text-4xl md:text-5xl font-bold mt-2 mb-4 text-black dark:text-white transition-colors"
+                            onMouseEnter={() => setCursorType('hover')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            {t.visual.title}
+                        </h2>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">{t.visual.subtitle}</p>
+                    </div>
+                    
+                    {/* 6个竖细条水平紧凑排列，恢复原状 */}
+                    <div className="flex justify-start md:justify-center items-center gap-3 md:gap-6 overflow-x-auto hide-scrollbar pb-8 px-4 w-full">
+                        {t.visual.items.map((item, idx) => <SkillCard key={idx} item={item} setCursorType={setCursorType} />)}
+                    </div>
+                </section>
+            );
+        };
+
+        const SkillCard = ({ item, setCursorType }) => {
+            return (
+                <div 
+                    className="w-[60px] md:w-[90px] h-[320px] md:h-[400px] shrink-0 group [perspective:1000px] cursor-pointer"
+                    onMouseEnter={() => setCursorType('hover')}
+                    onMouseLeave={() => setCursorType('default')}
+                >
+                    <div className="relative w-full h-full [transform-style:preserve-3d] transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:[transform:rotateY(180deg)]">
+                        
+                        {/* 正面 (Front Side) */}
+                        <div className="absolute inset-0 [backface-visibility:hidden] bg-gray-50 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 rounded-full flex flex-col items-center justify-between py-8 md:py-10 shadow-sm transition-colors group-hover:border-gray-400 dark:group-hover:border-gray-600">
+                            <span className="text-gray-400 dark:text-gray-500 font-mono text-xs md:text-sm font-bold">
+                                {item.num}
+                            </span>
+                            <span 
+                                className="text-black dark:text-white font-bold tracking-[0.3em] md:tracking-[0.5em] text-sm md:text-lg" 
+                                style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}
+                            >
+                                {item.title}
+                            </span>
+                            <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-gray-300 dark:bg-gray-700"></div>
+                        </div>
+
+                        {/* 背面 (Back Side - 品牌色与说明文案) */}
+                        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-[#B8F500] border border-[#B8F500] rounded-full flex flex-col items-center justify-center py-6 px-1.5 md:px-3 shadow-xl overflow-hidden">
+                            <span 
+                                className="text-black font-bold text-[11px] md:text-[13px] tracking-[0.15em] md:tracking-[0.2em] leading-loose md:leading-loose text-center" 
+                                style={{ writingMode: 'vertical-rl' }}
+                            >
+                                {item.desc}
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+            );
+        };
+
+        const VisualExploration = ({ t, setCursorType }) => (
+            <section id="skills" className="py-32 px-4 md:px-16 max-w-7xl mx-auto border-t border-gray-100 dark:border-gray-900 transition-colors">
+                {/* 头部标题与擅长标签 */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+                    <div className="max-w-xl">
+                        <h2 
+                            className="text-5xl md:text-6xl font-extrabold text-black dark:text-white transition-colors"
+                            onMouseEnter={() => setCursorType('hover')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            My <span className="text-[#B8F500]">{t.skills.titleHighlight}</span>
+                        </h2>
+                        <span className="text-sm text-gray-500 mt-2 block tracking-widest">{t.skills.subtitle}</span>
+                        <p className="text-gray-500 dark:text-gray-400 mt-6 text-sm md:text-base leading-relaxed transition-colors">{t.skills.desc}</p>
+                    </div>
+                    
+                    <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
+                        <span className="text-xs font-mono text-gray-400 dark:text-gray-600 uppercase tracking-widest">{t.skills.specialtiesLabel}</span>
+                        <div className="flex flex-wrap gap-2">
+                            {t.skills.specialties.map((spec, i) => (
+                                <span 
+                                    key={i} 
+                                    className="px-4 py-2 text-sm bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 rounded-full font-medium text-gray-700 dark:text-gray-300 transition-all hover:border-gray-400 dark:hover:border-gray-600"
+                                    onMouseEnter={() => setCursorType('hover')}
+                                    onMouseLeave={() => setCursorType('default')}
+                                >
+                                    {spec}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* 漫剧生产能力 - 6个竖细条卡片 */}
+                <div className="border-t border-gray-200 dark:border-gray-800 pt-10">
+                    <div className="flex justify-start md:justify-center items-center gap-3 md:gap-6 overflow-x-auto hide-scrollbar pb-8 px-4 w-full">
+                        {t.visual.items.map((item, idx) => <SkillCard key={idx} item={item} setCursorType={setCursorType} />)}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const MasonryProjectCard = ({ item, setCursorType }) => {
+            const [isHovered, setIsHovered] = useState(false);
+            const [gifLoaded, setGifLoaded] = useState(false);
+            const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+            
+            const isVertical = item.aspectClass === 'aspect-[3/4]' || item.aspectClass === 'aspect-[2/3]';
+            const baseFlexClass = isVertical ? 'flex-[1.5]' : 'flex-[1]';
+
+            const handleMouseEnter = () => {
+                if (isMobile) return;
+                setIsHovered(true);
+                setCursorType('hover');
+            };
+
+            const handleMouseLeave = () => {
+                if (isMobile) return;
+                setIsHovered(false);
+                setCursorType('default');
+            };
+
+            return (
+                <div 
+                    className={`relative w-full rounded-2xl overflow-hidden ${isMobile ? 'cursor-default' : 'cursor-pointer group/card'} bg-gray-100 dark:bg-[#111111] border border-gray-200 dark:border-gray-800 ${!isMobile ? 'transition-[flex,box-shadow,border-color] duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:z-10 hover:shadow-2xl dark:hover:shadow-[#B8F500]/20 hover:border-[#B8F500]/50 hover:flex-[2.5] md:hover:flex-[3]' : ''} ${baseFlexClass}`}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                >
+                    <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${item.gradient}`}>
+                        
+                        <div className={`absolute inset-0 w-full h-full ${!isMobile ? 'transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover/card:scale-110' : ''}`}>
+                            {/* 静态封面图（不悬停时显示） */}
+                            <img 
+                                src={item.posterSrc || item.gifSrc} 
+                                alt={item.title} 
+                                className={`w-full h-full object-cover ${!isMobile ? `transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}` : 'opacity-100'}`}
+                                loading="lazy"
+                            />
+                            {/* GIF 动图（悬停时才加载和显示，移动端不显示） */}
+                            {!isMobile && isHovered && item.gifSrc && (
+                                <img 
+                                    src={item.gifSrc} 
+                                    alt={item.title} 
+                                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${gifLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                    onLoad={() => setGifLoaded(true)}
+                                />
+                            )}
+                        </div>
+
+                        {/* 底部渐变遮罩 (默认透明，悬停时浮现，保证文字可读性，移动端不显示) */}
+                        {!isMobile && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 ease-in-out"></div>
+                        )}
+
+                        {/* 底部文字内容区 (从下往上滑入 Slide-Up，移动端不显示) */}
+                        {!isMobile && (
+                            <div className="absolute bottom-3 left-3 right-3 z-10 flex items-end transform translate-y-6 opacity-0 group-hover/card:translate-y-0 group-hover/card:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                                <h3 className="text-white font-bold text-[10px] md:text-xs leading-tight mb-0 drop-shadow-md">
+                                    {item.title}
+                                </h3>
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+            );
+        };
+
+        const Projects = ({ t, setCursorType }) => {
+            const [cols, setCols] = useState(4);
+            
+            // 响应式分栏逻辑：根据屏幕宽度动态决定列数
+            useEffect(() => {
+                const updateCols = () => {
+                    if (window.innerWidth >= 1024) setCols(4); // Desktop
+                    else if (window.innerWidth >= 640) setCols(3); // Tablet
+                    else setCols(2); // Mobile
+                };
+                updateCols();
+                window.addEventListener('resize', updateCols);
+                return () => window.removeEventListener('resize', updateCols);
+            }, []);
+            
+            // 将数据平均分配到对应的列数组中，移除过滤逻辑，直接使用所有卡片
+            const columnsData = Array.from({ length: cols }, () => []);
+            t.projects.items.forEach((item, index) => {
+                columnsData[index % cols].push(item);
+            });
+
+            return (
+                <section id="projects" className="py-24 md:py-32 px-4 md:px-10 max-w-[1600px] mx-auto border-t border-gray-100 dark:border-gray-900 transition-colors">
+                    {/* Header Row */}
+                    <div className="mb-10 flex justify-between items-end">
+                        <div className="text-left">
+                            <span className="text-[#B8F500] font-mono text-xs uppercase tracking-widest">{t.projects.label}</span>
+                            <h2 
+                                className="text-3xl md:text-5xl font-bold mt-2 mb-3 text-black dark:text-white transition-colors"
+                                onMouseEnter={() => setCursorType('hover')}
+                                onMouseLeave={() => setCursorType('default')}
+                            >
+                                {t.projects.title}<span className="text-[#B8F500]">。</span>
+                            </h2>
+                            <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">{t.projects.subtitle}</p>
+                        </div>
+                        <div className="hidden md:flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#B8F500]">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            <span>鼠标悬停图片可查看动图</span>
+                        </div>
+                    </div>
+
+                    {/* 智能瀑布流布局：给定固定的外框高度(h-[900px])，消除外部布局扰动，实现内部完美的纯粹手风琴挤压效果 */}
+                    <div className="flex gap-2 md:gap-3 items-stretch w-full h-[600px] md:h-[750px] lg:h-[900px] overflow-hidden">
+                        {columnsData.map((colItems, colIndex) => (
+                            <div 
+                                key={colIndex} 
+                                className="flex flex-col gap-2 md:gap-3 flex-1 transition-[flex] duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] hover:flex-[1.5] lg:hover:flex-[1.8]"
+                            >
+                                {colItems.map((item, itemIdx) => (
+                                    <MasonryProjectCard 
+                                        key={`${colIndex}-${itemIdx}`} 
+                                        item={item} 
+                                        setCursorType={setCursorType} 
+                                    />
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* View More Button */}
+                    <div className="mt-12 flex justify-center">
+                        <button 
+                            className="px-6 py-3 bg-transparent border border-gray-200 dark:border-gray-800 text-black dark:text-white rounded-full font-bold text-xs md:text-sm flex items-center justify-center gap-2 hover:border-[#B8F500] hover:text-[#B8F500] transition-colors"
+                            onMouseEnter={() => setCursorType('hover')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            VIEW MORE WORKS
+                            <div className="w-5 h-5 rounded-full bg-[#B8F500] text-black flex items-center justify-center">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+            );
+        };
+
+        const Footer = ({ t, setCursorType }) => {
+            const [copiedIndex, setCopiedIndex] = useState(-1);
+            
+            const icons = {
+                phone: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+                email: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
+                wechat: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            };
+
+            const scrollToTop = () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const copyToClipboard = async (text, index) => {
+                try {
+                    if (!navigator.clipboard?.writeText) {
+                        throw new Error('Clipboard API unavailable');
+                    }
+                    await navigator.clipboard.writeText(text);
+                    setCopiedIndex(index);
+                    setTimeout(() => setCopiedIndex(-1), 2000);
+                } catch {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    textarea.remove();
+                    setCopiedIndex(index);
+                    setTimeout(() => setCopiedIndex(-1), 2000);
+                }
+            };
+
+            return (
+                <footer className="py-32 px-4 md:px-16 w-full border-t border-gray-200 dark:border-gray-800 transition-colors relative overflow-hidden bg-transparent">
+                    <div className="max-w-6xl mx-auto flex flex-col items-center">
+                        {/* AVAILABLE FOR WORK Badge */}
+                        <div className="mb-8 px-6 py-2 bg-[#B8F500] rounded-full">
+                            <span className="text-xs font-bold text-black uppercase tracking-widest">Available for work</span>
+                        </div>
+
+                        {/* Header: THANK YOU */}
+                        <h2 
+                            className="text-6xl md:text-8xl font-black uppercase tracking-tight text-white text-center"
+                            onMouseEnter={() => setCursorType('hover')}
+                            onMouseLeave={() => setCursorType('default')}
+                        >
+                            {t.footer.title}
+                        </h2>
+                        
+                        {/* Subtitle */}
+                        <p className="mt-8 text-center text-gray-400 text-sm md:text-base leading-relaxed max-w-3xl whitespace-pre-line">
+                            {t.footer.subtitle}
+                        </p>
+
+                        {/* 3 Contact Cards */}
+                        <div className="grid grid-cols-3 md:flex md:flex-row gap-2 md:gap-6 mt-12 w-full justify-center items-stretch">
+                            {t.footer.contacts.map((contact, idx) => (
+                                <div 
+                                    key={idx}
+                                    className="min-w-0 h-[150px] md:h-auto md:flex-1 md:w-full md:max-w-[300px] bg-white/5 backdrop-blur-sm rounded-xl md:rounded-2xl p-2 md:p-8 flex flex-col items-center justify-center gap-2 md:gap-4 cursor-pointer group border border-white/10 transition-all duration-300 hover:border-[#B8F500]/50 hover:bg-white/10 hover:shadow-lg hover:shadow-[#B8F500]/10 hover:-translate-y-1"
+                                    onMouseEnter={() => setCursorType('hover')}
+                                    onMouseLeave={() => setCursorType('default')}
+                                    onClick={() => copyToClipboard(contact.value, idx)}
+                                >
+                                    <div className={`w-9 h-9 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-white/5 flex items-center justify-center transition-all duration-300 ${copiedIndex === idx ? 'text-[#B8F500] scale-110' : 'text-gray-400 group-hover:text-[#B8F500]'}`}>
+                                        {copiedIndex === idx ? (
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                        ) : (
+                                            icons[contact.icon]
+                                        )}
+                                    </div>
+                                    <h3 className="text-xs md:text-base font-semibold text-gray-300 tracking-wide text-center">{contact.title}</h3>
+                                    <p className={`text-[9px] md:text-sm font-mono transition-colors duration-300 break-all text-center ${copiedIndex === idx ? 'text-[#B8F500]' : 'text-gray-400'}`}>{copiedIndex === idx ? '已复制!' : contact.value}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Copy Hint - moved below cards */}
+                        <p className="mt-6 text-center text-gray-500 text-xs font-mono">
+                            {t.footer.copyHint}
+                        </p>
+
+                        {/* Bottom Bar: Logo + Copyright + Top Button */}
+                        <div className="w-full flex flex-col md:flex-row justify-between items-center mt-32 pt-10 border-t border-gray-800 gap-6 md:gap-0">
+                            <div className="text-sm font-bold tracking-tight text-white flex items-center gap-1">
+                                JIAHUAN STUDIO <span className="text-[#B8F500]">*</span>
+                            </div>
+                            
+                            <div className="text-[10px] md:text-xs text-gray-600 font-mono tracking-widest text-center uppercase">
+                                {t.footer.copyright}
+                            </div>
+                            
+                            <button 
+                                onClick={scrollToTop}
+                                className="w-12 h-12 rounded-full border border-gray-700 bg-[#1a1a1a] flex items-center justify-center text-gray-500 hover:bg-gray-700 hover:text-white transition-all duration-300 cursor-pointer"
+                                onMouseEnter={() => setCursorType('hover')}
+                                onMouseLeave={() => setCursorType('default')}
+                                title="Back to top"
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                                    <polyline points="5 12 12 5 19 12"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </footer>
+            );
+        };
+
+        const App = () => {
+            const [isDarkMode, setIsDarkMode] = useState(true);
+            const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
+            const [cursorType, setCursorType] = useState('default'); // 'default' | 'hover' | 'lens'
+            const [mouseInWindow, setMouseInWindow] = useState(true);
+            const t = dictionary['zh']; 
+            
+            useEffect(() => {
+                if (isDarkMode) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, [isDarkMode]);
+
+            useEffect(() => {
+                const handleMouseMove = (e) => {
+                    setMousePos({ x: e.clientX, y: e.clientY });
+                };
+                const handleMouseLeave = () => setMouseInWindow(false);
+                const handleMouseEnter = () => setMouseInWindow(true);
+
+                window.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseleave', handleMouseLeave);
+                document.addEventListener('mouseenter', handleMouseEnter);
+
+                return () => {
+                    window.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseleave', handleMouseLeave);
+                    document.removeEventListener('mouseenter', handleMouseEnter);
+                };
+            }, []);
+
+            const CustomCursor = () => {
+                if (!mouseInWindow) return null;
+
+                let styles = {
+                    transform: `translate3d(${mousePos.x}px, ${mousePos.y}px, 0) translate(-50%, -50%)`,
+                    pointerEvents: 'none',
+                    zIndex: 9999,
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    borderRadius: '50%',
+                    willChange: 'transform, width, height, border, background-color'
+                };
+
+                if (cursorType === 'lens') {
+                    return (
+                        <div 
+                            style={{
+                                ...styles,
+                                width: '240px',
+                                height: '240px',
+                                border: '1.5px solid #B8F500',
+                                backgroundColor: 'rgba(184, 245, 0, 0.03)',
+                                transition: 'width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s ease'
+                            }}
+                        />
+                    );
+                }
+
+                if (cursorType === 'hover') {
+                    return (
+                        <div 
+                            style={{
+                                ...styles,
+                                width: '80px',
+                                height: '80px',
+                                backgroundColor: '#ffffff',
+                                mixBlendMode: 'difference',
+                                transition: 'width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s ease'
+                            }}
+                        />
+                    );
+                }
+
+                return (
+                    <div 
+                        style={{
+                            ...styles,
+                            width: '32px',
+                            height: '32px',
+                            backgroundColor: '#ffffff',
+                            mixBlendMode: 'difference',
+                            transition: 'width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s ease'
+                        }}
+                    />
+                );
+            };
+
+            return (
+                <div className="relative">
+                    {/* 自定义动态光标 */}
+                    <CustomCursor />
+                    
+                    <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} t={t} setCursorType={setCursorType} />
+                    <Hero t={t} isDarkMode={isDarkMode} mousePos={mousePos} cursorType={cursorType} setCursorType={setCursorType} />
+                    <About setCursorType={setCursorType} />
+                    <ComicProjects t={t} setCursorType={setCursorType} />
+                    <Projects t={t} setCursorType={setCursorType} />
+                    <VisualExploration t={t} setCursorType={setCursorType} />
+                    <Footer t={t} setCursorType={setCursorType} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+.npm-cache/
+.pdf-tools/
+.tools/
+.vercel/
+.vercel-auth/
+.vercel-cache/
+.vercel-cli/
+.vercel-cli-data/
+tmp/
+vercel-login.log
+vercel-login-error.log
