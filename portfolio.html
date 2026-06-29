@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -57,7 +57,7 @@
 <body>
 <header>
     <h1>JIAHUAN STUDIO · 作品集</h1>
-    <a href="assets/JIAHUAN_STUDIO_Portfolio.pdf" download="JIAHUAN_STUDIO_Portfolio.pdf">下载原始 PDF</a>
+    <a href="https://jiahuan-studio-1448602408.cos-website.ap-shanghai.myqcloud.com/assets/JIAHUAN_STUDIO_Portfolio.pdf" download="JIAHUAN_STUDIO_Portfolio.pdf">下载原始 PDF</a>
 </header>
 <main>
     <div class="pages" id="pages"></div>
@@ -66,7 +66,7 @@
     const pages = document.getElementById("pages");
     for (let page = 1; page <= 21; page += 1) {
         const image = document.createElement("img");
-        image.src = `assets/resume-preview/page-${String(page).padStart(2, "0")}.png`;
+        image.src = `https://jiahuan-studio-1448602408.cos-website.ap-shanghai.myqcloud.com/assets/resume-preview/page-${String(page).padStart(2, "0")}.png`;
         image.alt = `作品集第 ${page} 页`;
         image.loading = page <= 2 ? "eager" : "lazy";
         pages.appendChild(image);
